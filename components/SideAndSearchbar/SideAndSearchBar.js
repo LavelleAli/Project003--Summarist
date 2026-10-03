@@ -187,7 +187,7 @@ const SideAndSearchBar = () => {
                 <FaRegBookmark className={styles.react_icon__sidebar} />
               </div>
               <Link href={"/my-library"} onClick={() => setSidebarOpen(false)}>
-                <div className={styles.sideBar_link__text}>My Library</div>
+                <div className={styles.sideBar_link__notAllowed}>My Library</div>
               </Link>
             </div>
 

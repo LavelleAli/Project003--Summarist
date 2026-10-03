@@ -8,8 +8,6 @@ const AddBookToCollection = () => {
 
   function addBtnToggle() {
     saved === !true ? setSaved(true) : setSaved(!true);
-    
-   
   }
 
 

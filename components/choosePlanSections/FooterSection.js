@@ -78,7 +78,7 @@ const FooterSection = () => {
               </div>
             </div>
             <div className={styles.footer_copyright__wrapper}>
-                <div className={styles.footer_copyright}> Copyright © 2023 Summarist</div>
+                <div className={styles.footer_copyright}> Copyright © 2026 Summarist</div>
             </div>
           </div>
         </div>
