@@ -4,24 +4,13 @@ import Image from "next/image";
 import { FaRegClock, FaRegStar } from "react-icons/fa6";
 import { useSelector, useDispatch } from "react-redux";
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
 import { openModal } from "@/redux/slices/loginModal";
-import { getPremiumStatus } from "@/firebase/firebase";
 
 const RecommendedBooks = ({ recBooks }) => {
   const user = useSelector((state) => state.auth.user);
   const dispatch = useDispatch();
   const router = useRouter();
-  const [premiumUser, setPremiumUser] = useState(null);
-
-  useEffect(() => {
-    if (!user) return;
-    const checkPremiumStatus = async () => {
-      const status = await getPremiumStatus();
-      setPremiumUser(status);
-    };
-    checkPremiumStatus();
-  }, [user]);
+  const premiumUser = useSelector((state) => state.auth.isPremium);
 
   function renderPremium(book) {
     return (

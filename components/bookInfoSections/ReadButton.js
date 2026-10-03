@@ -1,24 +1,13 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
-import { getPremiumStatus } from "@/firebase/firebase";
 import { useSelector, useDispatch } from "react-redux";
 import { openModal } from "@/redux/slices/loginModal";
 
 const ReadButton = ({ id, subscriptionRequired, className, children }) => {
   const router = useRouter();
-  const [premiumUser, setPremiumUser] = useState(null);
+  const premiumUser = useSelector((state) => state.auth.isPremium);
   const user = useSelector((state) => state.auth.user);
   const dispatch = useDispatch();
-
-  useEffect(() => {
-    if (!user) return;
-    const checkPremiumStatus = async () => {
-      const status = await getPremiumStatus();
-      setPremiumUser(status);
-    };
-    checkPremiumStatus();
-  }, [user]);
 
   return (
 

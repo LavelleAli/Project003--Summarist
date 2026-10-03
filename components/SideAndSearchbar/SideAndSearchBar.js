@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import LoginTrigger from "@/components/loginmodal/LoginTrigger";
 import LoginModalGate from "@/components/loginmodal/LoginModalGate";
 import Logout from "@/components/loginmodal/Logout";
@@ -19,8 +19,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { openModal } from "@/redux/slices/loginModal";
 import { useDispatch } from "react-redux";
-import { useRouter } from "next/navigation";
-import { getPremiumStatus } from "@/firebase/firebase";
+import { useRouter, usePathname } from "next/navigation";
 import { useHasMounted } from "@/hooks/useHasMounted";
 import Skeleton from "@/components/skeletons/Skeleton";
 
@@ -30,20 +29,13 @@ const SideAndSearchBar = () => {
   const hasMounted = useHasMounted();
   const dispatch = useDispatch();
   const router = useRouter();
-  const [premiumUser, setPremiumUser] = useState(null);
+  // The player page has an audio bar at the bottom, so the sidebar is shorter there.
+  const inPlayer = usePathname()?.startsWith("/player");
+  const premiumUser = useSelector((state) => state.auth.isPremium);
 
   const [search, setSearch] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  useEffect(() => {
-    if (!user) return;
-    const checkPremiumStatus = async () => {
-      const status = await getPremiumStatus();
-      setPremiumUser(status);
-    };
-    checkPremiumStatus();
-  }, [user]);
 
   async function simpleSearch(e) {
     const searchTerm = e.target.value.trim();
@@ -117,7 +109,7 @@ const SideAndSearchBar = () => {
   }
 
   return (
-    <>
+    <div className={inPlayer ? styles.sideBar_inPlayer : undefined}>
       <LoginModalGate />
       <div className={styles.search_background}>
         <div className={styles.search_wrapper}>
@@ -167,7 +159,7 @@ const SideAndSearchBar = () => {
         </div>
         <div className={styles.sideBar__wrapper}>
           <div className={styles.sideBar__top}>
-            <a
+            <Link
               className={styles.sideBar_link__wrapper}
               href="/for-you"
               onClick={() => setSidebarOpen(false)}
@@ -179,7 +171,7 @@ const SideAndSearchBar = () => {
                 <AiOutlineHome className={styles.react_icon__sidebar} />
               </div>
               <div className={styles.sideBar_link__text}>For you</div>
-            </a>
+            </Link>
 
             <div className={styles.sideBar_link__wrapper}>
               <div className={styles.sideBar_link__line}></div>
@@ -211,7 +203,7 @@ const SideAndSearchBar = () => {
             </div>
           </div>
           <div className={styles.sideBar__bottom}>
-            <a
+            <Link
               className={styles.sideBar_link__wrapper}
               href="/settings"
               onClick={() => setSidebarOpen(false)}
@@ -221,7 +213,7 @@ const SideAndSearchBar = () => {
                 <GoGear className={styles.react_icon__sidebar} />
               </div>
               <div className={styles.sideBar_link__text}>Settings</div>
-            </a>
+            </Link>
 
             <div
               className={`${styles.sideBar_link__wrapper} ${styles.sideBar_link__notAllowed}`}
@@ -257,7 +249,7 @@ const SideAndSearchBar = () => {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

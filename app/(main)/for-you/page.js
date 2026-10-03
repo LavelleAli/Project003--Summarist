@@ -2,15 +2,17 @@ import styles from "@/styles/ForYou.module.css";
 import SelectedBooks from "@/components/forYouSections/SelectedBooks";
 import RecommendedBooks from "@/components/forYouSections/RecommendedBooks";
 import SuggestedBooks from "@/components/forYouSections/SuggestedBooks";
-import SideAndSearchBar from "@/components/SideAndSearchbar/SideAndSearchBar";
+
+
+const CACHE_1H = { next: { revalidate: 3600 } };
 
 async function ForYou() {
 
   const [selectedRes, recommendedRes, suggestedRes] = 
   await Promise.all([
-    fetch("https://us-central1-summaristt.cloudfunctions.net/getBooks?status=selected"),
-    fetch("https://us-central1-summaristt.cloudfunctions.net/getBooks?status=recommended"),
-    fetch("https://us-central1-summaristt.cloudfunctions.net/getBooks?status=suggested"),
+    fetch("https://us-central1-summaristt.cloudfunctions.net/getBooks?status=selected", CACHE_1H),
+    fetch("https://us-central1-summaristt.cloudfunctions.net/getBooks?status=recommended", CACHE_1H),
+    fetch("https://us-central1-summaristt.cloudfunctions.net/getBooks?status=suggested", CACHE_1H),
   ]);
 
   const [selectedBooks, recommendedBooks, suggestedBooks] = await Promise.all([
@@ -19,7 +21,6 @@ async function ForYou() {
 
   return (
     <>
-    <SideAndSearchBar />
       <div className={styles.row}>
         <div className={styles.container}>
           <div className={styles.for_you__wrapper}>

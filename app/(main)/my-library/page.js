@@ -1,6 +1,5 @@
 'use client'
 import AddBookToCollection from "@/components/bookInfoSections/AddBookToCollection";
-import SearchAndSiderbar from "@/components/SideAndSearchbar/SideAndSearchBar";
 import styles from "@/styles/MyLibrary.module.css";
 import axios from "axios";
 import { useState } from "react";
@@ -9,12 +8,9 @@ const MyLibrary = () => {
 
 
 
-
-
-
+  
   return (
     <>
-      <SearchAndSiderbar />
       <div className={styles.row}>
         <div className={styles.container}>
           <div className={styles.for_you__title}>Saved Books</div>

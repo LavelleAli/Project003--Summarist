@@ -3,8 +3,8 @@
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "@/firebase/firebase";
-import { setUser, clearUser } from "@/redux/slices/auth";
+import { auth, getPremiumStatus } from "@/firebase/firebase";
+import { setUser, clearUser, setPremium } from "@/redux/slices/auth";
 
 export default function AuthListener() {
   const dispatch = useDispatch();
@@ -13,6 +13,13 @@ export default function AuthListener() {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         dispatch(setUser({ uid: user.uid, email: user.email, displayName: user.displayName }));
+        // Check the subscription once here; components read it from Redux.
+        getPremiumStatus()
+          .then((status) => dispatch(setPremium(status)))
+          .catch((error) => {
+            console.log("Could not load subscription status", error);
+            dispatch(setPremium(false));
+          });
       } else {
         dispatch(clearUser());
       }

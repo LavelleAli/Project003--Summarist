@@ -1,11 +1,10 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import styles from "@/styles/Settings.module.css";
 import forYouStyles from "@/styles/ForYou.module.css";
-import SideAndSearchBar from "@/components/SideAndSearchbar/SideAndSearchBar";
-import { getPortalUrl, getPremiumStatus, auth } from "@/firebase/firebase";
+import { getPortalUrl } from "@/firebase/firebase";
 import Link from "next/link";
 import Image from "next/image";
 import LoginTrigger from "@/components/loginmodal/LoginTrigger";
@@ -16,23 +15,11 @@ const Settings = () => {
   const user = useSelector((state) => state.auth.user);
   const initializing = useSelector((state) => state.auth.initializing);
   const hasMounted = useHasMounted();
-  const [isPremium, setIsPremium] = useState(null);
-  const [isLoadingStatus, setIsLoadingStatus] = useState(true);
+  const isPremium = useSelector((state) => state.auth.isPremium);
+  const isLoadingStatus = isPremium === null;
   const [isRedirecting, setIsRedirecting] = useState(false);
-  const [userEmail, setUserEmail] = useState("");
-
-  useEffect(() => {
-    if (!user) return;
-    setUserEmail(
-      auth.currentUser?.email ?? "No email account associated with this user",
-    );
-    getPremiumStatus()
-      .then(setIsPremium)
-      .catch((error) =>
-        console.log("Could not load subscription status", error),
-      )
-      .finally(() => setIsLoadingStatus(false));
-  }, [user]);
+  const userEmail =
+    user?.email ?? "No email account associated with this user";
 
   const handleManageSubscription = async () => {
     setIsRedirecting(true);
@@ -48,7 +35,6 @@ const Settings = () => {
 
   return (
     <>
-      <SideAndSearchBar />
       <div className={forYouStyles.row}>
         <div className={forYouStyles.container}>
           <div className={styles.header}>

@@ -1,6 +1,5 @@
 import styles from "@/styles/ForYou.module.css";
 import bookStyles from "@/styles/BookInfo.module.css";
-import SideAndSearchBar from "@/components/SideAndSearchbar/SideAndSearchBar";
 import BookBasicInfoSkeleton from "@/components/bookInfoSections/BookBasicInfoSkeleton";
 import BookAboutSkeleton from "@/components/bookInfoSections/BookAboutSkeleton";
 import BookImageSkeleton from "@/components/bookInfoSections/BookImageSkeleton";
@@ -9,7 +8,6 @@ import AddBookToCollectionSkeleton from "@/components/bookInfoSections/AddBookTo
 const BookLoading = () => {
   return (
     <>
-      <SideAndSearchBar />
       <div className={styles.row}>
         <div className={styles.container}>
           <div className={bookStyles.innerBookWrapper}>
