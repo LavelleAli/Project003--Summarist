@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import LoginTrigger from "@/components/loginmodal/LoginTrigger";
 import LoginModalGate from "@/components/loginmodal/LoginModalGate";
 import Logout from "@/components/loginmodal/Logout";
@@ -29,37 +29,44 @@ const SideAndSearchBar = () => {
   const hasMounted = useHasMounted();
   const dispatch = useDispatch();
   const router = useRouter();
-  // The player page has an audio bar at the bottom, so the sidebar is shorter there.
-  const inPlayer = usePathname()?.startsWith("/player");
+  const pathname = usePathname();
+
+  const inPlayer = pathname?.startsWith("/player");
   const premiumUser = useSelector((state) => state.auth.isPremium);
 
   const [search, setSearch] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const searchTerm = search.trim();
+  const visibleResults = searchTerm ? searchResults : [];
 
-  async function simpleSearch(e) {
-    const searchTerm = e.target.value.trim();
-    setSearch(searchTerm);
-    if (!searchTerm) {
-      setSearchResults([]);
-      return;
-    }
-    try {
-      const res = await fetch(
-        `https://us-central1-summaristt.cloudfunctions.net/getBooksByAuthorOrTitle?search=${encodeURIComponent(searchTerm)}`,
-      );
-      const data = await res.json();
-      setSearchResults(data);
-      console.log(data);
-    } catch (error) {
-      console.log("Error fetching Data:", error);
-    }
-  }
+  useEffect(() => {
+    if (!searchTerm) return;
+    let ignore = false;
+    // Wait until the user pauses typing instead of searching on every keystroke
+    const timeout = setTimeout(async () => {
+      try {
+        const res = await fetch(
+          `https://us-central1-summaristt.cloudfunctions.net/getBooksByAuthorOrTitle?search=${encodeURIComponent(searchTerm)}`,
+        );
+        if (!res.ok) throw new Error(`Search failed with status ${res.status}`);
+        const data = await res.json();
+        // Skip responses for a term the user has already typed past
+        if (!ignore) setSearchResults(Array.isArray(data) ? data : []);
+      } catch (error) {
+        console.log("Error fetching Data:", error);
+      }
+    }, 300);
+    return () => {
+      ignore = true;
+      clearTimeout(timeout);
+    };
+  }, [searchTerm]);
 
   function searchBarRenderHelper() {
     return (
       <>
-        {searchResults.map((book) => {
+        {visibleResults.map((book) => {
           return (
             <div
               className={styles.search_books__wrapper}
@@ -69,12 +76,12 @@ const SideAndSearchBar = () => {
                 className={styles.search_book__link}
                 onClick={() => {
                   if (!user) return dispatch(openModal());
+                  setSearch("");
                   book?.subscriptionRequired && premiumUser !== true
                     ? router.push("/choose-plan")
                     : router.push(`/book/${book.id}`);
                 }}
               >
-                <audio src={book.audioLink}></audio>
                 <figure className={styles.book_img__wrapper}>
                   <Image
                     className={styles.book_img}
@@ -121,14 +128,8 @@ const SideAndSearchBar = () => {
                   className={styles.search_input}
                   type="text"
                   placeholder="Search for books"
-                  onChange={(e) => {
-                    simpleSearch(e)
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      simpleSearch(e);
-                    }
-                  }}
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
                 />
                 <div className={styles.search_icon}>
                   <RxMagnifyingGlass className={styles.react_icon} />
@@ -144,7 +145,7 @@ const SideAndSearchBar = () => {
               </button>
             </div>
           </div>
-          {searchResults && searchBarRenderHelper()}
+          {searchBarRenderHelper()}
         </div>
       </div>
       {sidebarOpen && (
@@ -165,7 +166,7 @@ const SideAndSearchBar = () => {
               onClick={() => setSidebarOpen(false)}
             >
               <div
-                className={`${styles.sideBar_link__line} ${styles.active__tab}`}
+                className={`${styles.sideBar_link__line} ${pathname === "/for-you" ? styles.active__tab : ""}`}
               ></div>
               <div className={styles.sideBar_icon_wrapper}>
                 <AiOutlineHome className={styles.react_icon__sidebar} />
@@ -208,7 +209,9 @@ const SideAndSearchBar = () => {
               href="/settings"
               onClick={() => setSidebarOpen(false)}
             >
-              <div className={styles.sideBar_link__line}></div>
+              <div
+                className={`${styles.sideBar_link__line} ${pathname === "/settings" ? styles.active__tab : ""}`}
+              ></div>
               <div className={styles.sideBar_icon_wrapper}>
                 <GoGear className={styles.react_icon__sidebar} />
               </div>
@@ -225,7 +228,7 @@ const SideAndSearchBar = () => {
               <div className={styles.sideBar_link__textNA}>Help & Support</div>
             </div>
 
-            <a
+            <div
               className={`${styles.sideBar_link__wrapper}`}
               onClick={() => setSidebarOpen(false)}
             >
@@ -245,7 +248,7 @@ const SideAndSearchBar = () => {
                   Login
                 </LoginTrigger>
               )}
-            </a>
+            </div>
           </div>
         </div>
       </div>

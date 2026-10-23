@@ -1,18 +1,16 @@
 import React from "react";
 import styles from "@/styles/ChoosPlane.module.css";
-import Image from "next/image";
-import { AiFillFileText } from "react-icons/ai";
-import { RiPlantFill } from "react-icons/ri";
-import { FaHandshake } from "react-icons/fa";
 import PlanHeader from "@/components/choosePlanSections/PlanHeader";
 import PlanFeatures from "@/components/choosePlanSections/PlanFeatures";
 import PlanCards from "@/components/choosePlanSections/PlanCards";
 import FAQSection from "@/components/choosePlanSections/FAQSection";
 import FooterSection from "@/components/choosePlanSections/FooterSection";
+import LoginModalGate from "@/components/loginmodal/LoginModalGate";
 
 const Chooseplane = () => {
   return (
     <>
+      <LoginModalGate />
       <div className={styles.plan_selection_page}>
         <div className={`${styles.wrapper} ${styles.wrapper_full}`}>
           <div

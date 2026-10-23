@@ -10,6 +10,7 @@ import {
   signOut,
   GoogleAuthProvider,
   sendPasswordResetEmail,
+  getAdditionalUserInfo,
 } from "firebase/auth";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { toast } from "react-toastify";
@@ -32,6 +33,12 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
 
+// Turns a Firebase code like "auth/wrong-password" into "wrong password"
+const showAuthError = (error) => {
+  const message = error?.code?.split('/')[1]?.split('-').join(' ');
+  toast.error(message || "Something went wrong, please try again")
+};
+
 const login = async (email, password) => {
   try {
     await signInWithEmailAndPassword(auth, email, password)
@@ -40,7 +47,7 @@ const login = async (email, password) => {
   }
   catch (error) {
     console.log("Login Unsuccessful", error)
-    toast.error(error.code.split('/')[1].split('-').join(' '))
+    showAuthError(error)
   }
 };
 
@@ -52,7 +59,7 @@ const googleSignIn = async () => {
   }
   catch(error) {
     console.log("Sign Up Unsuccessful", error)
-    toast.error(error.code.split('/')[1].split('-').join( ))
+    showAuthError(error)
   }
 };
 
@@ -64,7 +71,7 @@ const loginGuest = async () => {
   }
   catch(error) {
     console.log("Login Unsuccessful", error)
-    toast.error(error.code.split('/')[1].split('-').join(' '))
+    showAuthError(error)
   }
 };
 
@@ -76,7 +83,7 @@ const emailSignUp = async (name, email, password) => {
     await addDoc(collection(db, "user"), {
       uid: user.uid,
       name,
-      EmailAuthProvider:"local",
+      authProvider: "local",
       email,
     });
     toast.success("Success! Thank You for Signing Up with Summarist")
@@ -84,7 +91,7 @@ const emailSignUp = async (name, email, password) => {
   }
   catch(error) {
     console.log("Sign Up Unsuccessful", error)
-    toast.error(error.code.split('/')[1].split('-').join(' '))
+    showAuthError(error)
   }
 };
 
@@ -92,18 +99,21 @@ const googleSignUp = async () => {
   try {
     const res = await signInWithPopup(auth, googleProvider);
     const user = res.user;
-    await addDoc(collection(db, "user"), {
-      uid: user.uid,
-      name: user.displayName,
-      authProvider: "google",
-      email: user.email,
-    });
-    toast.success("Success! Thank You for Siging Up With Summarist!")
+    // Only record the user the first time, so signing up twice doesn't duplicate them
+    if (getAdditionalUserInfo(res)?.isNewUser) {
+      await addDoc(collection(db, "user"), {
+        uid: user.uid,
+        name: user.displayName,
+        authProvider: "google",
+        email: user.email,
+      });
+    }
+    toast.success("Success! Thank You for Signing Up With Summarist!")
     return true
   }
   catch (error) {
     console.log("Unsuccessful Sign Up, Please Try Again", error);
-    toast.error(error.code.split('/')[1].split('-').join(' '))
+    showAuthError(error)
   }
 };
 
@@ -113,7 +123,7 @@ const resetPassword = async (email) => {
     toast.success("Password reset email sent")
     return true
   } catch (error) {
-    toast.error(error.code.split('/')[1].split('-').join(' '))
+    showAuthError(error)
   }
 }
 
@@ -161,23 +171,17 @@ const getPortalUrl = async () => {
 };
 
 
-const getPremiumStatus = async () => {
-  const userId = auth.currentUser?.uid;
-  if (!userId) throw new Error("User not logged in");
-
+// Calls onChange with true/false now and again whenever the subscription changes
+// (e.g. when Stripe finishes writing it after checkout). Returns an unsubscribe function.
+const watchPremiumStatus = (userId, onChange, onError) => {
   const subscriptionsRef = collection(db, "customers", userId, "subscriptions");
   const findQ = query(subscriptionsRef, where("status", "in", ["trialing", "active"]));
 
-  return new Promise((resolve, reject) => {
-    const unsubscribe = onSnapshot(
-      findQ,
-      (snapshot) => {
-        unsubscribe();
-        resolve(snapshot.docs.length > 0);
-      },
-      reject
-    );
-  });
+  return onSnapshot(
+    findQ,
+    (snapshot) => onChange(snapshot.docs.length > 0),
+    onError
+  );
 };
 
 
@@ -185,4 +189,4 @@ const logout = () => {
   signOut(auth);
 };
 
-export { db, auth, googleProvider, login, googleSignIn, emailSignUp, logout, loginGuest, googleSignUp, resetPassword, getCheckoutUrl, getPortalUrl, getPremiumStatus };
+export { db, auth, googleProvider, login, googleSignIn, emailSignUp, logout, loginGuest, googleSignUp, resetPassword, getCheckoutUrl, getPortalUrl, watchPremiumStatus };

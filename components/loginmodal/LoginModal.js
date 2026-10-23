@@ -4,17 +4,18 @@ import Image from "next/image";
 import "@/styles/LoginModal.css";
 import { FaUser, FaXmark } from "react-icons/fa6";
 import { useDispatch } from "react-redux";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { closeModal } from "@/redux/slices/loginModal";
 import SignUpModal from "./SignUpModal";
 import ResetPasswordModal from "./ResetPasswordModal";
-import { login, googleSignIn, loginGuest,logout } from "@/firebase/firebase";
+import { login, googleSignIn, loginGuest } from "@/firebase/firebase";
 
 
 
 const LoginModal = () => {
   const dispatch = useDispatch();
   const router = useRouter();
+  const pathname = usePathname();
   const [showSignUp, setShowSignUp] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -22,7 +23,8 @@ const LoginModal = () => {
 
   const onLoginSuccess = () => {
     dispatch(closeModal())
-    router.push('/for-you')
+    // From the landing page go into the app; elsewhere (e.g. checkout) stay where the user was
+    if (pathname === '/') router.push('/for-you')
   }
 
   const handleLogin = async () => {

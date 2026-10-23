@@ -1,18 +1,20 @@
 import React from "react";
+import { notFound } from "next/navigation";
 import PlayerTitle from "@/components/playerSections/PlayerTitle";
+import PlayerAccessGate from "@/components/playerSections/PlayerAccessGate";
+import { getBook } from "@/lib/books";
 
 const PlayerPage = async ({ params }) => {
   const { id } = await params;
-  const res = await fetch(
-    `https://us-central1-summaristt.cloudfunctions.net/getBook?id=${id}`,
-    { next: { revalidate: 3600 } },
-  );
-  const book = await res.json();
+  const book = await getBook(id);
+  if (!book) notFound();
 
 
   return (
     <>
-      <PlayerTitle book={book} />
+      <PlayerAccessGate subscriptionRequired={book.subscriptionRequired}>
+        <PlayerTitle book={book} />
+      </PlayerAccessGate>
     </>
   );
 };
