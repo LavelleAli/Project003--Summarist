@@ -36,7 +36,6 @@ const SuggestedBooks = ({ suggestedBooks }) => {
         >
           {item?.subscriptionRequired === true ? "Premium" : null}
         </div>
-        <audio src={item?.audioLink}>Audio Link</audio>
         <figure className={styles.book_image__wrapper}>
           <Image
             src={item?.imageLink}
@@ -63,7 +62,7 @@ const SuggestedBooks = ({ suggestedBooks }) => {
               <FaRegStar />
             </div>
             <div className={styles.recommended_book__detailsText}>
-              {Math.max(item?.averageRating)}
+              {item?.averageRating}
             </div>
           </div>
         </div>

@@ -1,9 +1,10 @@
 "use client";
 import React, { useState } from "react";
 import styles from "@/styles/ChoosPlane.module.css";
-import { useRouter } from "next/navigation";
+import { useSelector, useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import { getCheckoutUrl } from "@/firebase/firebase";
+import { openModal } from "@/redux/slices/loginModal";
 
 
 const PRICE_IDS = {
@@ -14,13 +15,16 @@ const PRICE_IDS = {
 const PlanCards = () => {
   const [selectedPlan, setSelectedPlan] = useState("yearly");
   const [isRedirecting, setIsRedirecting] = useState(false);
-  const router = useRouter();
+  const user = useSelector((state) => state.auth.user);
+  const dispatch = useDispatch();
 
   const handleCheckout = async () => {
+    if (!user) return dispatch(openModal());
     setIsRedirecting(true);
     try {
       const checkoutUrl = await getCheckoutUrl(PRICE_IDS[selectedPlan]);
-      router.push(checkoutUrl);
+      // Stripe checkout is on another site, so leave the app with a full page load
+      window.location.assign(checkoutUrl);
     } catch (error) {
       console.log("Checkout failed", error);
       toast.error("Could not start checkout, please try again");
@@ -40,10 +44,10 @@ const PlanCards = () => {
           {selectedPlan === "yearly" && <div className={styles.plan_card__dot}></div>}
         </div>
         <div className={styles.plan_card__content}>
-          <div className={styles.plan_card__title}>Preium Plus Yearly</div>
+          <div className={styles.plan_card__title}>Premium Plus Yearly</div>
           <div className={styles.plan_card__price}>$99.99/year</div>
           <div className={styles.plan_card__text}>
-            7-day free trail included
+            7-day free trial included
           </div>
         </div>
       </div>
@@ -59,9 +63,9 @@ const PlanCards = () => {
           {selectedPlan === "monthly" && <div className={styles.plan_card__dot}></div>}
         </div>
         <div className={styles.plan_card__content}>
-          <div className={styles.plan_card__title}>Preium Monthly</div>
+          <div className={styles.plan_card__title}>Premium Monthly</div>
           <div className={styles.plan_card__price}>$9.99/month</div>
-          <div className={styles.plan_card__text}>No trail included</div>
+          <div className={styles.plan_card__text}>No trial included</div>
         </div>
       </div>
       <div className={styles.plan_card__cta}>

@@ -45,7 +45,7 @@ const Settings = () => {
           <div className={styles.card}>
             {!hasMounted || initializing ? (
               <div className={styles.login_wrapper}>
-                <Skeleton height="500px" width="500px" />
+                <Skeleton height="min(500px, 90vw)" width="min(500px, 100%)" />
                 <Skeleton height="16px" width="220px" />
                 <Skeleton height="36px" width="100px" />
               </div>
@@ -94,8 +94,8 @@ const Settings = () => {
                         </button>
                       )}
                       {!isLoadingStatus && !isPremium && (
-                        <Link href={`/choose-plan`}>
-                          <button className={`${styles.btn} ${styles.btn__action}`}>Upgrade To Premium</button>
+                        <Link href={`/choose-plan`} className={`${styles.btn} ${styles.btn__action}`}>
+                          Upgrade To Premium
                         </Link>
                       )}
                     </div>

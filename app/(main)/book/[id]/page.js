@@ -1,20 +1,19 @@
 import React from "react";
+import { notFound } from "next/navigation";
 import styles from "@/styles/ForYou.module.css";
 import bookStyles from "@/styles/BookInfo.module.css";
 import BookBasicInfo from "@/components/bookInfoSections/BookBasicInfo";
 import BookAbout from "@/components/bookInfoSections/BookAbout";
 import BookImage from "@/components/bookInfoSections/BookImage";
 import AddBookToCollection from "@/components/bookInfoSections/AddBookToCollection";
+import { getBook } from "@/lib/books";
 
 
 const bookInfoPage = async ({ params }) => {
   const { id } = await params;
-  const res = await fetch(
-    `https://us-central1-summaristt.cloudfunctions.net/getBook?id=${id}`,
-    { next: { revalidate: 3600 } },
-  );
-  const book = await res.json();
- 
+  const book = await getBook(id);
+  if (!book) notFound();
+
 
   return (
     <>

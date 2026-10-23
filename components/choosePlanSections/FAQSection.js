@@ -9,8 +9,12 @@ const FAQSection = () => {
   const [bodyHeights, setBodyHeights] = useState([])
   const bodyRefs = useRef([])
 
+  // Re-measure on resize, since answers wrap onto more lines on narrower screens
   useLayoutEffect(() => {
-    setBodyHeights(bodyRefs.current.map(el => el?.scrollHeight ?? 0))
+    const measure = () => setBodyHeights(bodyRefs.current.map(el => el?.scrollHeight ?? 0))
+    measure()
+    window.addEventListener('resize', measure)
+    return () => window.removeEventListener('resize', measure)
   }, [])
 
   function toggleAccordion(index) {
@@ -19,7 +23,7 @@ const FAQSection = () => {
 
   const faqs = [
     {
-      title: "How does the free 7-day trail work?",
+      title: "How does the free 7-day trial work?",
       body: `Begin your complimentary 7-day trial with a Summarist annual
               membership. You are under no obligation to continue your
               subscription, and you will only be billed when the trial period
@@ -56,11 +60,10 @@ const FAQSection = () => {
           const isOpen = openIndex === index
           return (
             <div className={styles.accordion_card} key={faq.title}>
-              <div className={styles.accordion_header}>
+              <div className={styles.accordion_header} onClick={() => toggleAccordion(index)}>
                 <div className={styles.accordion_title}>{faq.title}</div>
                 <IoIosArrowUp
                   className={`${styles.accordion_icon} ${isOpen ? styles.accordion_icon__rotate : ''}`}
-                  onClick={() => toggleAccordion(index)}
                 />
               </div>
               <div

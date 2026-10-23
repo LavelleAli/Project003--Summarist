@@ -1,15 +1,8 @@
 "use client";
 import { useAudioPlayerContext } from "@/components/context/AudioPlayerContext";
-import { useCallback, useEffect, useState, useRef } from "react";
-import {
-  BsFillFastForwardFill,
-  BsFillPauseFill,
-  BsFillPlayFill,
-  BsFillRewindFill,
-} from "react-icons/bs";
+import { useCallback, useEffect, useRef } from "react";
 import { RiReplay10Fill, RiForward10Fill, RiPlayCircleFill, RiPauseCircleFill } from "react-icons/ri";
 import styles from "@/styles/Player.module.css";
-import { tracks } from "../data/Tracks";
 
 const Controls = () => {
   const {
@@ -25,22 +18,21 @@ const Controls = () => {
 
   const playAnimationRef = useRef(null);
 
-  const onLoadedMetadata = () => {
+  const onLoadedMetadata = useCallback(() => {
     const seconds = audioRef.current?.duration;
+    if (seconds === undefined || Number.isNaN(seconds)) return;
 
-    if (seconds !== undefined) {
-      setDuration(seconds);
-    }
+    setDuration(seconds);
     if (progressBarRef.current) {
       progressBarRef.current.max = seconds.toString();
     }
-  };
+  }, [audioRef, progressBarRef, setDuration]);
 
   useEffect(() => {
     if (audioRef.current && audioRef.current.readyState >= 1) {
       onLoadedMetadata();
     }
-  }, [audioRef]);
+  }, [audioRef, onLoadedMetadata]);
 
   const updateProgress = useCallback(() => {
     if (audioRef.current && progressBarRef.current && duration) {
@@ -62,11 +54,12 @@ const Controls = () => {
       };
       playAnimationRef.current = requestAnimationFrame(animate);
     }
-  });
+  }, [audioRef, progressBarRef, duration, updateProgress]);
 
   useEffect(() => {
     if (isPlaying) {
-      audioRef.current?.play();
+      // play() rejects if the browser blocks playback or the source fails to load
+      audioRef.current?.play()?.catch(() => setIsPlaying(false));
       startAnimation();
     } else {
       audioRef.current?.pause();
@@ -81,7 +74,7 @@ const Controls = () => {
         cancelAnimationFrame(playAnimationRef.current);
       }
     };
-  }, [isPlaying, startAnimation, updateProgress, audioRef]);
+  }, [isPlaying, startAnimation, updateProgress, audioRef, setIsPlaying]);
 
   const skipForward = () => {
     if (audioRef.current) {
@@ -103,6 +96,7 @@ const Controls = () => {
         src={currentTrack.src}
         ref={audioRef}
         onLoadedMetadata={onLoadedMetadata}
+        onEnded={() => setIsPlaying(false)}
       />
 
       <button onClick={skipBackward}>
@@ -112,7 +106,6 @@ const Controls = () => {
       <button onClick={() => setIsPlaying((prev) => !prev)}>
         {isPlaying ? (
           <RiPauseCircleFill size={50} />
-          // <BsFillPauseFill size={30} />
         ) : (
           <RiPlayCircleFill size={50} />
         )}
