@@ -9,7 +9,7 @@ Summarist is a book-summary web app: browse curated titles, read a summary or li
 - **For You page** with Selected, Recommended and Suggested books
 - **Search** by title or author, debounced as you type
 - **Book pages** with ratings, key ideas, tags and a description
-- **Audio player** with play and pause, 10-second skip, a progress bar and volume control
+- **Audio player** with play and pause, 10-second skip and a seekable progress bar
 - **Premium subscriptions** through Stripe (Firebase Stripe extension), with yearly and monthly plans and a 7-day trial on yearly
 - **Access control**: premium books send free users to the plans page, including when opened directly by URL
 - **Live subscription status**: premium unlocks as soon as checkout finishes, with no refresh needed
@@ -25,17 +25,17 @@ Summarist is a book-summary web app: browse curated titles, read a summary or li
 | Backend | Firebase Auth, Cloud Firestore, Cloud Functions |
 | Payments | Stripe, through the Firebase "Run Payments with Stripe" extension |
 | Styling | CSS Modules, Tailwind CSS 4 |
-| UI | react-icons, Font Awesome, react-toastify |
+| UI | react-icons, react-toastify |
 
 Book data comes from the Summarist API on Cloud Functions (`getBook`, `getBooks`, `getBooksByAuthorOrTitle`) and is cached for one hour.
 
 ## Getting started
 
-You need Node.js 20 or newer.
+You need Node.js 20.9 or newer.
 
 ```bash
-git clone https://github.com/LavelleAli/Lavelle-advance-virtual-internship.git
-cd Lavelle-advance-virtual-internship
+git clone https://github.com/LavelleAli/Project003--Summarist.git
+cd Project003--Summarist
 npm install
 npm run dev
 ```
